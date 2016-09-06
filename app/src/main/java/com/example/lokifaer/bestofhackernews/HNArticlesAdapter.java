@@ -17,35 +17,72 @@ import java.util.List;
  * Created by lokifaer on 05/09/16.
  */
 public class HNArticlesAdapter
-        extends RecyclerView.Adapter<HNArticlesAdapter.HNArticleViewHolder>
+        extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements HNQueryCallback
 {
+    private static final int VIEW_TYPE_ARTICLE = 0;
+    private static final int VIEW_TYPE_PROGRESS = 1;
+
     private final List<HNArticle> articleList = new ArrayList<HNArticle>();
+    private boolean _hasMore = false;
+
+    private final MainActivity mainActivity;
+
+    public HNArticlesAdapter(MainActivity mActivity)
+    {
+        mainActivity = mActivity;
+    }
 
     @Override
     public int getItemCount()
     {
-        return articleList.size();
+        return articleList.size() + (_hasMore ? 1 : 0);
     }
 
     @Override
     public void onArticlesReceived(List<HNArticle> articles, boolean hasMore)
     {
         articleList.addAll(articles);
+        _hasMore = hasMore;
         notifyDataSetChanged();
     }
 
     @Override
-    public HNArticleViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
+    public int getItemViewType(int position)
     {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
-        return new HNArticleViewHolder(view);
+        if (position < articleList.size())
+            return VIEW_TYPE_ARTICLE;
+        else
+            return VIEW_TYPE_PROGRESS;
     }
 
     @Override
-    public void onBindViewHolder(HNArticleViewHolder holder, int position)
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
-        holder.bind(articleList.get(position));
+        switch(viewType)
+        {
+            case VIEW_TYPE_ARTICLE:
+            {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+                return new HNArticleViewHolder(view);
+            }
+            case VIEW_TYPE_PROGRESS:
+            {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_progress, parent, false);
+                return new ProgressViewHolder(view);
+            }
+            default:
+                throw new IllegalStateException("Unknown type " + viewType);
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position)
+    {
+        if (holder instanceof HNArticleViewHolder)
+            ((HNArticleViewHolder) holder).bind(articleList.get(position));
+        else if (holder instanceof ProgressViewHolder)
+            mainActivity.loadNext();
     }
 
     public static class HNArticleViewHolder extends RecyclerView.ViewHolder
@@ -62,5 +99,10 @@ public class HNArticlesAdapter
         {
             title.setText(a.title);
         }
+    }
+
+    public static class ProgressViewHolder extends RecyclerView.ViewHolder
+    {
+        public ProgressViewHolder(View itemView) { super(itemView); }
     }
 }

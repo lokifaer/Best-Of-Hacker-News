@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Best-Of-Hacker-News.iml" filepath="$PROJECT_DIR$/Best-Of-Hacker-News.iml" />
       <module fileurl="file://$PROJECT_DIR$/BestOfHackerNews.iml" filepath="$PROJECT_DIR$/BestOfHackerNews.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>

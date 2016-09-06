@@ -1,5 +1,6 @@
 package com.example.lokifaer.bestofhackernews;
 
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,6 +13,8 @@ import com.oc.hnapp.android.HNQueryTask;
 public class MainActivity extends AppCompatActivity
 {
     HNQueryTask myTask = null;
+    int currentPage = 0;
+    private HNArticlesAdapter myAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,11 +24,10 @@ public class MainActivity extends AppCompatActivity
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        HNArticlesAdapter myAdapter = new HNArticlesAdapter();
+        myAdapter = new HNArticlesAdapter(this);
         recyclerView.setAdapter(myAdapter);
 
-        myTask = new HNQueryTask(myAdapter, 80, 1);
-        myTask.execute();
+        loadNext();
 
         final ProgressBar progress = (ProgressBar) findViewById(R.id.progress);
         myAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver()
@@ -36,6 +38,16 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+
+    protected void loadNext()
+    {
+        if (myTask != null && myTask.getStatus() != AsyncTask.Status.FINISHED)
+            return;
+
+        myTask = new HNQueryTask(myAdapter, 80, ++currentPage);
+        myTask.execute();
+    }
+
 
 
     @Override
